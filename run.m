@@ -23,4 +23,10 @@ while hasFrame(vidReader)
     replace = frame_dif > maxDif;
     maxDif(replace) = frame_dif(replace);
 end
-imshow(imbinarize(maxDif, 0.6));
+threshold = mean(maxDif(:)) + std(maxDif(:));
+binary = imbinarize(maxDif, threshold);
+SE = strel('square',20);
+morphed = imclose(binary, SE);
+no_circles = 1 - bwareaopen(imcomplement(morphed), 10000);
+imshow(no_circles);
+
