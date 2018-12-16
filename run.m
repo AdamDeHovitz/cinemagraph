@@ -5,28 +5,19 @@
 %% Read the video into MATLAB
 %vidreader documentation: https://www.mathworks.com/help/matlab/ref/videoreader.html
 vidReader = VideoReader('vid.m4v');
-opticFlow = opticalFlowFarneback;
+%opticFlow = opticalFlowFarneback;
 %% Estimate Optical Flow of each frame
-meanImage = zeros(vidReader.height, vidReader.width);
-i = 0;
-while hasFrame(vidReader)
-    frameRGB = rgb2gray(im2double(readFrame(vidReader)));
-    meanImage = meanImage + frameRGB;
-    i = i + 1;
-end
-vidReader.CurrentTime = 0;
-meanImage = meanImage ./ i;
-maxDif = zeros(vidReader.height, vidReader.width);
-while hasFrame(vidReader)
-    frameRGB = rgb2gray(im2double(readFrame(vidReader)));
-    frame_dif = abs(meanImage - frameRGB);
-    replace = frame_dif > maxDif;
-    maxDif(replace) = frame_dif(replace);
-end
-threshold = mean(maxDif(:)) + std(maxDif(:));
-binary = imbinarize(maxDif, threshold);
+
+% alternate is ssim_image
+binary = mean_image(vidReader);
+
 SE = strel('square',20);
 morphed = imclose(binary, SE);
 no_circles = 1 - bwareaopen(imcomplement(morphed), 10000);
 imshow(no_circles);
-
+%image that user defines a selection on
+selection_image = no_circles ./2 + meanImage ./2;
+sound(randn(4096, 1), 8192)
+selection = drawassisted();
+selection_mask = createMask(selection);
+sound(randn(4096, 1), 8192)
